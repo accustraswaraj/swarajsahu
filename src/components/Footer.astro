@@ -1,0 +1,63 @@
+---
+
+---
+
+<footer class="site-footer">
+  <div class="inside-site-info grid-container">
+    <div class="copyright-bar">
+      <div class="copyright-text">
+        &copy; 2026 Accustra Internet Pvt Ltd, Powered by <a
+          href="https://cloudflare.com"
+          target="_blank"
+          rel="nofollow noopener noreferrer">Cloudflare</a
+        > + <a
+          href="https://astro.build"
+          target="_blank"
+          rel="noopener noreferrer">Astro</a
+        >
+      </div>
+      <div class="legal-link">
+        <a href="/legal">Legal</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    border-top: 1px solid #2a2a2a;
+    margin-top: auto;
+    font-size: 16px;
+    color: #aaaaaa;
+  }
+
+  .copyright-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .copyright-text a,
+  .legal-link a {
+    color: #cccccc;
+    text-decoration: underline;
+  }
+
+  .copyright-text a:hover,
+  .legal-link a:hover {
+    color: #ffffff;
+  }
+
+  @media (max-width: 460px) {
+    .copyright-bar {
+      justify-content: center;
+      text-align: center;
+      flex-direction: column;
+    }
+  }
+</style>

@@ -1,0 +1,282 @@
+/* CSS Design System */
+:root {
+  --bg-color: #1d1d1d;
+  --text-color: #ffffff;
+  --text-muted: #cacaca;
+  --text-subtle: #888888;
+  --border-color: #313131;
+  --accent-color: #ffb810;
+  --link-hover: #ffffff;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  --container-width: 1100px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-family);
+  font-size: 18px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+a {
+  color: var(--text-color);
+  text-decoration: underline;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+a:hover {
+  opacity: 0.85;
+}
+
+.grid-container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* Site Layout */
+.site-content {
+  flex: 1 0 auto;
+  padding-top: 50px;
+  padding-bottom: 60px;
+}
+
+/* Typography Elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-color);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+
+.home-title {
+  font-size: 46px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 35px;
+  line-height: 1.25;
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 600px) {
+  .home-title {
+    font-size: 34px;
+  }
+}
+
+.underline {
+  border-bottom: 5px solid var(--border-color);
+  color: var(--accent-color);
+}
+
+.bio-paragraph {
+  max-width: 850px;
+  margin: 0 auto 50px auto;
+  font-size: 20px;
+  line-height: 1.75;
+  color: #dddddd;
+}
+
+.bio-paragraph a {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* Products Grid */
+.product-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  margin-top: 40px;
+  margin-bottom: 50px;
+}
+
+.product-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+}
+
+.product-icon {
+  flex-shrink: 0;
+  width: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.product-icon img,
+.product-icon svg {
+  max-width: 85px;
+  height: auto;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-info h3 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.product-info h3 a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.product-info h3 a:hover {
+  color: #ffffff;
+}
+
+.product-info p {
+  font-size: 19px;
+  color: #cccccc;
+  line-height: 1.6;
+}
+
+/* Product badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  line-height: 1;
+}
+
+.badge-live {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.35);
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.badge-soon {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+@keyframes pulse-dot {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.75);
+  }
+}
+
+
+/* Social & Icon styling */
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+}
+
+/* Code & Preformatted */
+pre,
+code {
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  background-color: #262626;
+  padding: 10px 15px;
+  border-radius: 4px;
+  color: #e8e8e8;
+  font-size: 16px;
+  overflow-x: auto;
+}
+
+/* List Styles */
+ul.tools-list {
+  list-style-type: disc;
+  padding-left: 25px;
+  margin-bottom: 30px;
+}
+
+ul.tools-list li {
+  margin-bottom: 8px;
+  font-size: 19px;
+}
+
+ul.tools-list li a {
+  color: #ffffff;
+}
+
+/* Spacers & Utilities */
+.spacer {
+  height: 30px;
+}
+
+.item-name {
+  text-decoration: none;
+}
+
+.item-desc {
+  color: #ccc;
+}
+
+@media (max-width: 600px) {
+  .product-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .product-icon {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

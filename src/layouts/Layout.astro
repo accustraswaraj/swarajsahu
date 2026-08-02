@@ -1,0 +1,42 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "We build softwares and APIs for marketers.",
+  description = "Accustra Labs is an independent software company founded by marketers for marketers.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/accustralabs.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Accustra Labs" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@accustra_com" />
+  </head>
+  <body>
+    <Header />
+    <main id="content" class="site-content">
+      <div class="grid-container">
+        <slot />
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
