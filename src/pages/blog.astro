@@ -3,25 +3,36 @@ import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
 const allPosts = await getCollection("blogs");
-const posts = allPosts.map((post) => ({
-  title: post.data.title,
-  date: post.data.date,
-  excerpt: post.data.excerpt,
-  category: post.data.category,
-  url: `/blog/${post.id}`,
-}));
+const posts = allPosts
+  .map((post) => {
+    const publishedAt = Date.parse(`${post.data.date} ${post.data.time}`);
+    if (!Number.isFinite(publishedAt)) {
+      throw new Error(
+        `Invalid publication date or time "${post.data.date} ${post.data.time}" for blog post "${post.id}".`,
+      );
+    }
+
+    return {
+      title: post.data.title,
+      date: post.data.date,
+      publishedAt,
+      excerpt: post.data.excerpt,
+      category: post.data.category,
+      url: `/blog/${post.id}`,
+    };
+  })
+  .sort((a, b) => b.publishedAt - a.publishedAt);
 ---
 
 <Layout
-  title="Blog - Accustralabs"
-  description="Actionable articles on web performance, WordPress development, and system design."
+  title="Blog - Swaraj Sahu"
+  description="Actionable articles on web performance, Web development, Web Scraping, and system design."
 >
   <article class="blog-article">
     <header class="page-header">
       <h1 class="page-title">Blog</h1>
       <p class="subtitle">
-        Actionable articles on web performance, WordPress development, and
-        agency growth.
+        Actionable articles on web performance, Web development, Web Scraping, and system design.
       </p>
     </header>
 

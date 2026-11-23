@@ -100,7 +100,7 @@ h6 {
 
 .bio-paragraph {
   max-width: 850px;
-  margin: 0 auto 50px auto;
+  margin: 0 auto 20px auto;
   font-size: 20px;
   line-height: 1.75;
   color: #dddddd;
@@ -109,6 +109,20 @@ h6 {
 .bio-paragraph a {
   color: #ffffff;
   text-decoration: underline;
+}
+
+.bio-component-paragraph a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.logo-inline {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin: 0 0.15em;
+  object-fit: contain;
+  vertical-align: -0.15em;
 }
 
 /* Products Grid */
