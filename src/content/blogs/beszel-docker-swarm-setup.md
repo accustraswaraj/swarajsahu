@@ -15,8 +15,7 @@ tools:
 
 ## Table of contents
 
-- [Architecture](#architecture)
-- [1. Create the overlay network](#1-create-the-overlay-network)
+- [1. Architecture](#1-architecture)
 - [2. Beszel Hub setup](#2-beszel-hub-setup)
   - [2.1 Initialize manager node](#21-initialize-manager-node)
   - [2.2 Deploy the Beszel Hub](#22-deploy-the-beszel-hub)
@@ -31,33 +30,20 @@ tools:
 - [6. Useful verification commands](#6-useful-verification-commands)
 - [7. Operational notes](#6-operational-notes)
 
-## Architecture
+## 1. Architecture
 
 -   One **Beszel Hub** runs as a single service on the _designated_
     Manager node.
 -   The **Beszel Agent** runs as a Global Swarm service, with one Agent
     on every eligible Manager and Worker node.
--   Agents connect to the Hub through the `beszel-hub` overlay network.
+-   Agents connect to the Hub through the <BESZEL_HUB_NODE_PUBLIC_IP> address.
 -   The Hub dashboard is published on TCP port `8090`.
 -   Each Agent has read-only access to the local Docker socket to
     collect container metrics.
 
 ![Beszel Docker Swarm Network Diagram](https://pub-863190a82084455b973ae8e7853383fb.r2.dev/beszel-swarm-network-diagram-dark-compressed.png)
 
-## 1. Create the overlay network
 
-The overlay network lets the Hub and Agents communicate across Swarm nodes.
-It also keeps Beszel traffic isolated from unrelated container networks.
-
-Run once from a Swarm Manager:
-
-``` bash
-docker network create \
-  --driver overlay \
-  --attachable \
-  beszel-hub
-```
-If `beszel-hub` already exists, use the existing network.
 
 ## 2. Beszel Hub setup
 
@@ -97,9 +83,8 @@ To create a service in the Portainer dashboard, go to **Services** > **Create se
 -   Replicas: `1`
 -   Container port: `8090`
 -   Published port: `8090`
--   Publish mode: `Ingress`
+-   Publish mode: `host`
 -   Bind mount: `/opt/beszel/data` → `/beszel_data`
--   Network: `beszel-hub`
 -   Placement constraint: `node.labels.beszel-hub == true`
 
 To deploy it as a stack, go to **Stacks** > **Add stack** in the Portainer dashboard. Enter a name, add the YAML configuration in the web editor, and submit.
@@ -114,21 +99,14 @@ services:
       - target: 8090
         published: 8090
         protocol: tcp
-        mode: ingress
+        mode: host
     volumes:
       - /opt/beszel/data:/beszel_data
-    networks:
-      - beszel-hub
     deploy:
       replicas: 1
       placement:
         constraints:
           - node.labels.beszel-hub == true
-
-networks:
-  beszel-hub:
-    external: true
-    name: beszel-hub
 ```
 
 The bind mount source directory must exist on the node where the Hub is
@@ -156,7 +134,7 @@ On the first visit:
 
 To monitor your Swarm nodes, deploy the Beszel Agent as a global service. Docker Swarm runs one Agent task on each eligible node and automatically starts an Agent on eligible nodes that join the cluster later. This means you do not need to deploy an Agent separately on every node.
 
-Each Agent connects to the Hub over the `beszel-hub` overlay network and uses the Hub's Public Key and Universal Token to register. We will store these credentials as Docker Swarm secrets and reference them in the Agent stack.
+Each Agent connects to the Hub over the `<BESZEL_HUB_NODE_PUBLIC_IP>` IP and uses the Hub's Public Key and Universal Token to register. We will store these credentials as Docker Swarm secrets and reference them in the Agent stack.
 
 To set this up, first obtain the credentials from the Hub, then create the secrets and deploy the Agent stack.
 
@@ -202,12 +180,10 @@ services:
       mode: global
     environment:
       SYSTEM_NAME: "{{.Node.Hostname}}"
-      BESZEL_AGENT_HUB_URL: http://beszel-hub:8090
+      BESZEL_AGENT_HUB_URL: http://<BESZEL_HUB_NODE_PUBLIC_IP>:8090
       BESZEL_AGENT_KEY_FILE: /run/secrets/hub-key
       BESZEL_AGENT_TOKEN_FILE: /run/secrets/hub-token
       BESZEL_AGENT_DISABLE_SSH: "true"
-    networks:
-      - beszel-hub
     secrets:
       - hub-key
       - hub-token
@@ -216,11 +192,6 @@ services:
         source: /var/run/docker.sock
         target: /var/run/docker.sock
         read_only: true
-
-networks:
-  beszel-hub:
-    external: true
-    name: beszel-hub
 
 secrets:
   hub-key:
@@ -239,8 +210,7 @@ in Step 2.1.
 -   Runs one Agent on every eligible Manager and Worker node.
 -   Automatically schedules an Agent when a new node joins the Swarm.
 -   Maintains one Agent task per eligible node.
--   Connects each Agent to the Hub through the `beszel-hub` overlay
-    network.
+-   Connects each Agent to the Hub through the <BESZEL_HUB_NODE_PUBLIC_IP>.
 
 Once you run the stack and create the service, you'll see the node in the dashboard. It is the Hub node because the Hub node is also an Agent node.
 
@@ -254,7 +224,7 @@ Clicking a node opens its dedicated page, where you can view metrics such as RAM
 
 ## 4. Restrict dashboard access to Manager nodes
 
-The Hub uses Swarm `Ingress` publishing on port `8090`. Swarm's routing
+The Hub uses Swarm `host` publishing on port `8090`. Swarm's routing
 mesh can accept connections on any node IP and forward them to the Hub
 task.
 
@@ -273,10 +243,40 @@ cluster.
 
 ## 5. Adding a new Swarm node
 
-When a new node joins the Swarm:
+Before adding a node, check UFW on the Beszel Hub node and the other Swarm
+nodes. Run this command on each node:
+
+```bash
+sudo ufw status
+```
+
+If UFW is active, allow Swarm traffic between the nodes on TCP and UDP port
+`7946` and UDP port `4789`.
+
+On the Beszel Hub node, add these rules once for each other Swarm node.
+Replace `<SWARM_NODE_PUBLIC_IP>` with that node's public IP:
+
+```bash
+sudo ufw allow from <SWARM_NODE_PUBLIC_IP> to any port 7946 proto tcp
+sudo ufw allow from <SWARM_NODE_PUBLIC_IP> to any port 7946 proto udp
+sudo ufw allow from <SWARM_NODE_PUBLIC_IP> to any port 4789 proto udp
+```
+
+On each new or existing non-Hub node, add the same rules using
+`<BESZEL_HUB_NODE_PUBLIC_IP>` as the source IP. Repeat them for every other
+Swarm node that needs to communicate with it, substituting that node's
+public IP:
+
+```bash
+sudo ufw allow from <BESZEL_HUB_NODE_PUBLIC_IP> to any port 7946 proto tcp
+sudo ufw allow from <BESZEL_HUB_NODE_PUBLIC_IP> to any port 7946 proto udp
+sudo ufw allow from <BESZEL_HUB_NODE_PUBLIC_IP> to any port 4789 proto udp
+```
+
+Once the firewall rules are in place and the new node joins the Swarm:
 
 1.  The Global Agent service schedules an Agent on the new node.
-2.  The Agent connects to `http://beszel-hub:8090` over the overlay
+2.  The Agent connects to `http://<BESZEL_HUB_NODE_PUBLIC_IP>:8090` over the 
     network.
 3.  The Agent uses the Public Key and Universal Token supplied through
     the Swarm secrets.
@@ -316,12 +316,6 @@ docker node inspect MANAGER_NODE_NAME \
   --format '{{json .Spec.Labels}}'
 ```
 
-Inspect the overlay network:
-
-``` bash
-docker network inspect beszel-hub
-```
-
 ## 7. Operational notes
 
 -   Keep `/opt/beszel/data` persistent.
@@ -330,11 +324,9 @@ docker network inspect beszel-hub
 -   Keep the `beszel-hub=true` label on the intended Hub Manager only.
 -   Keep the Agent service in `global` mode.
 -   Store the Hub Public Key and Universal Token as Docker secrets.
--   Ensure the `beszel-hub` overlay network is available to both Hub and
-    Agent services.
 -   If the designated Hub Manager is unavailable, the Hub will not
     automatically move to another Manager with its data unless you also
     arrange suitable shared/replicated storage and update the placement
     strategy.
--   With `Ingress` publishing, use firewall rules on all nodes to
+-   With `host` publishing, use firewall rules on all nodes to
     restrict external access to port `8090`.
